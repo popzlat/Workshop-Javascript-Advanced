@@ -12,6 +12,7 @@ class Starship {
         this.isDamaged = false;
         this.isDestroyed = false;
         this.dockedPlanet = null;
+        this.fuelMax = fuel
 
     }
     start(planet) {
@@ -35,23 +36,35 @@ class Starship {
 
         let that = this;
         setTimeout(function () {
-
-            console.log('Started working');
+            console.log(`${that.name} Started working`);
             that.dock(planet)
-            console.log('Finished working');
+
         }, ((planet.distance * 1000) / this.speed));
 
     }
+    stats(ship) {
+        console.log("------- SHIP STATS -------");
+        console.log(`CREW: ${this.crew}`);
+        console.log(`FUEL: ${this.fuel}/${this.fuelMax}`);
+        console.log(`HULL: ${this.hull}/${this.hullMax}`);
+        console.log(`CREDITS: ${this.credits}`);
+    }
 
     dock(planet) {
-
+        let fuelNeed = planet.distance * 20;
+        let dockedShips = planet.shipsDocked
+        let that = this;
         setTimeout(() => {
+
             console.log("The Ship started docking")
-            planet.shipsDocked.push(this);
-            this.isWorking = false;
-            this.dockedPlanet = planet
-            console.log('Docked');
-        }, 2000)
+            dockedShips.push(this);
+            that.isWorking = false;
+            that.dockedPlanet = planet
+            console.log('The Ship is Docked');
+            that.fuel = that.fuel - fuelNeed
+            that.crew = that.crew - 1;
+            that.hull = that.hull - 100;
+        }, 2000);
 
 
     }
@@ -84,17 +97,23 @@ class Planet {
             return;
         }
         if (!ship.dockedPlanet instanceof Planet) {
-            console.log("You can't repair it")
+            console.log("You can't repair it ")
+            return;
         }
-        if (ship.hullMax == ship.hull) {
+        if (ship.hull === ship.hullMax) {
             console.log(" You can't repair it")
+            return;
         }
         if (ship.credits < price.repair) {
             console.log(" You can't repair it")
+            return
         }
-        //When the ship is repaired it's hull is changed to maximum value, 
-        //the price is subtracted from the ship credits and the property isDamaged is set to false
-
+        if (ship.hull < ship.hullMax) {
+            ship.hull = ship.hullMax;
+            ship.credits = ship.credits - price.repair;
+            ship.isDamaged = false;
+            console.log(`${ship.name} is repaired`)
+        }
     }
 
     refuel(ship) {
@@ -105,22 +124,40 @@ class Planet {
 
         if (!ship.dockedPlanet instanceof Planet) {
             console.log("You can't refuel it")
+            return;
         }
-        //if the fuel is already at max capacity you can't refuel it
+
+        if (ship.fuel === ship.fuelMax) {
+            console.log("You can't refuel it")
+            return;
+        }
         if (ship.credits < price.fuel) {
             console.log("You can't refuel it")
+            return;
         }
-        //When the ship is refueled it's fuel is changed to maximum value and the price is subtracted from the ship credits
+        if (ship.fuel < ship.fuelMax) {
+            ship.fuel = ship.fuelMax;
+            ship.credits = ship.credits - price.fuel
+            console.log("Ship fuel is full")
+        }
     }
     hireCrewMember(ship) {
         if (!ship instanceof Starship) {
             console.log("you can't add a crew member")
+            return;
         }
         if (!ship.dockedPlanet instanceof Planet) {
             console.log("you can't add a crew member")
+            return;
         }
         if (ship.credits < price.crew) {
             console.log("you can't add a crew member")
+            return;
+        }
+        if (ship.credits >= price.crew) {
+            console.log("New Member in the Ship")
+            ship.credits = ship.credits - price.crew
+            ship.crew = ship.crew + 1
         }
 
     }
@@ -140,17 +177,141 @@ let crushinator = new Starship("Crushinator", 5, 540, 400, 0.2, "https://github.
 let scouter = new Starship("Scouter", 1, 300, 300, 0.9, "img/Scouter.png")
 
 let ships = [starFighter, crushinator, scouter]
+let currentShip;
+$("#btnCrushinator").on("click", () => {
+    currentShip = crushinator
+    $(".containerShips").hide();
+    $(".containerPlanets").show();
+    $("H1").hide();
+    $("#title2").show()
 
-
-$(".btn").on("click",()=>{
-        $(".containerShips").hide();
-        $(".containerPlanets").show();
-        $("H1").hide();
-        $("#title2").show()
 })
-$(".backToShips").on("click",()=>{
+$("#btnStarFighter").on("click", () => {
+    currentShip = starFighter
+    $(".containerShips").hide();
+    $(".containerPlanets").show();
+    $("H1").hide();
+    $("#title2").show()
+})
+$("#btnScouter").on("click", () => {
+    currentShip = scouter
+    $(".containerShips").hide();
+    $(".containerPlanets").show();
+    $("H1").hide();
+    $("#title2").show()
+})
+
+$(".backToShips").on("click", () => {
     $(".containerShips").show();
     $(".containerPlanets").hide();
 })
 
-//  test for git commit
+let chosenPlanet;
+$("#btnB18-1").on("click", () => {
+    chosenPlanet = b181
+    currentShip.start(chosenPlanet);
+})
+$("#btnDextriaey").on("click", () => {
+    chosenPlanet = dextriaey
+    currentShip.start(chosenPlanet)
+})
+$("#btnMagmus").on("click", () => {
+    chosenPlanet = magmus
+    currentShip.start(chosenPlanet)
+})
+$("#btnbtnR7").on("click", () => {
+    chosenPlanet = r7
+    currentShip.start(chosenPlanet)
+})
+$("#btnRubicon9").on("click", () => {
+    chosenPlanet = rubicon9
+    currentShip.start(chosenPlanet)
+})
+
+function repairShip(currentShip) {
+
+    chosenPlanet.repair(currentShip)
+}
+function hireMember(currentShip) {
+    chosenPlanet.hireCrewMember(currentShip)
+}
+function refuelShip(currentShip) {
+    chosenPlanet.refuel(currentShip)
+}
+
+$("#repairB18-1").on("click", () => {
+    repairShip(currentShip)
+})
+$("#repairDextriaey").on("click", () => {
+    repairShip(currentShip)
+})
+$("#repairMagmus").on("click", () => {
+    repairShip(currentShip)
+})
+$("#repairR7").on("click", () => {
+    repairShip(currentShip)
+})
+$("#repairRubicon9").on("click", () => {
+    repairShip(currentShip)
+})
+
+$("#refuelB18-1").on("click", () => {
+    refuelShip(currentShip)
+})
+$("#refuelDextriaey").on("click", () => {
+    refuelShip(currentShip)
+})
+$("#refuelMagmus").on("click", () => {
+    refuelShip(currentShip)
+})
+$("#refuelR7").on("click", () => {
+    refuelShip(currentShip)
+})
+$("#refuelRubicon9").on("click", () => {
+    refuelShip(currentShip)
+})
+
+$("#hireRubicon9").on("click", () => {
+    hireMember(currentShip)
+})
+$("#hireR7").on("click", () => {
+    hireMember(currentShip)
+})
+$("#hireMagmus").on("click", () => {
+    hireMember(currentShip)
+})
+$("#hireDextriaey").on("click", () => {
+    hireMember(currentShip)
+})
+$("#hireB18-1").on("click", () => {
+    hireMember(currentShip)
+})
+
+function getStats(currentShip) {
+    currentShip.stats(currentShip)
+
+}
+
+
+
+
+$("#statsRubicon9").on("click", () => {
+    getStats(currentShip)
+})
+
+$("#statsR7").on("click", () => {
+    getStats(currentShip)
+})
+
+$("#statsMagmus").on("click", () => {
+    getStats(currentShip)
+})
+
+$("#statsDextriaey").on("click", () => {
+    getStats(currentShip)
+})
+
+$("#statsB18-1").on("click", () => {
+    getStats(currentShip)
+})
+
