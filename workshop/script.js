@@ -23,23 +23,26 @@ class Starship {
             return;
         }
         if (this.dockedPlanet === planet) {
-            console.log(" You can't go to this planet ")
+            console.log(" You are already on this planet")
             return;
         }
         if (this.isDamaged != false || this.isDestroyed != false || this.crew == 0 || this.fuel < fuelNeed) {
             this.dockedPlanet.shipsDocked.pop();
-            console.log("can't start the ship")
+            console.log(" Something is wrong with your ship . I can't start the ship ")
+            return
         }
         else if (this.isWorking != false) {
             console.log("can't start the ship")
+            return
         }
-
+        console.log(this.name + " ready to fly")
         let that = this;
         setTimeout(function () {
-            console.log(`${that.name} Started working`);
+            console.log(`${that.name} Started flying`);
             that.dock(planet)
-
+            
         }, ((planet.distance * 1000) / this.speed));
+
 
     }
     stats(ship) {
@@ -121,9 +124,9 @@ class Planet {
             console.log(" This is not a Ship ...You can't refuel it ")
             return;
         }
-
-        if (!ship.dockedPlanet instanceof Planet) {
-            console.log("You can't refuel it")
+// errorr!!!!!!!!!!!!!
+        if(ship.dockedPlanet.name !== this.name){
+            console.log(`You are not docked on this planet!`);
             return;
         }
 
@@ -219,7 +222,8 @@ $("#btnMagmus").on("click", () => {
     chosenPlanet = magmus
     currentShip.start(chosenPlanet)
 })
-$("#btnbtnR7").on("click", () => {
+$("#btnR7").on("click", () => {
+  
     chosenPlanet = r7
     currentShip.start(chosenPlanet)
 })
